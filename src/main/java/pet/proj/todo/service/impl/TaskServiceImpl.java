@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pet.proj.todo.dto.CreateTaskDto;
 import pet.proj.todo.dto.TaskDto;
+import pet.proj.todo.exciption.WrongDeadlineException;
 import pet.proj.todo.mapper.TaskMapper;
 import pet.proj.todo.model.Task;
 import pet.proj.todo.model.Task.Status;
@@ -29,6 +30,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto createTask(CreateTaskDto taskDto) {
         Task notSavedTask = taskMapper.toModel(taskDto);
+        if (LocalDateTime.now().isAfter(taskDto.deadline())) {
+            throw new WrongDeadlineException("The deadline must be after the current time");
+        }
         if (notSavedTask.getStatus() == null) {
             notSavedTask.setStatus(Status.NEW);
         }
