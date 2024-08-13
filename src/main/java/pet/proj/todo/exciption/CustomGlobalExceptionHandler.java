@@ -8,7 +8,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class CustomGlobalExceptionHandler {
     @ExceptionHandler(WrongDeadlineException.class)
-    public ResponseEntity<Object> handleEntityNotFound(WrongDeadlineException ex) {
+    public ResponseEntity<Object> handleWrongDeadline(WrongDeadlineException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(WrongStatusException.class)
+    public ResponseEntity<Object> handleEntityNotFound(WrongStatusException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

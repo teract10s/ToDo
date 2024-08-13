@@ -1,5 +1,6 @@
 package pet.proj.todo.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,7 +16,6 @@ import lombok.Data;
 @Table(name = "tasks")
 @Data
 public class Task {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,7 +32,13 @@ public class Task {
 
     public enum Status {
         NEW,
-        IN_PROGRESS,
+        ACTIVE,
         COMPLETED,
+        CANCELLED;
+
+        @JsonCreator
+        public static Status fromValue(String value) {
+            return Status.valueOf(value.toUpperCase());
+        }
     }
 }
