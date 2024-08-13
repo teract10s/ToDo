@@ -30,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto createTask(CreateTaskDto taskDto) {
         Task notSavedTask = taskMapper.toModel(taskDto);
-        if (LocalDateTime.now().isAfter(taskDto.deadline())) {
+        if (taskDto.deadline() != null && LocalDateTime.now().isAfter(taskDto.deadline())) {
             throw new WrongDeadlineException("The deadline must be after the current time");
         }
         if (notSavedTask.getStatus() == null) {
