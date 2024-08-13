@@ -1,5 +1,6 @@
 package pet.proj.todo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,7 @@ import pet.proj.todo.model.Task.Status;
 public class TaskDto {
     private String name;
     private String description;
+    @JsonFormat(pattern = "dd:MM:yyyy' 'HH:mm")
     private LocalDateTime deadline;
     private Status status;
 }
