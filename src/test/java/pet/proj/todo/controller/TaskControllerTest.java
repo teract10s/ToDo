@@ -1,6 +1,7 @@
 package pet.proj.todo.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -19,18 +19,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import pet.proj.todo.dto.CreateTaskDto;
-import pet.proj.todo.dto.TaskDto;
-import pet.proj.todo.dto.UpdateTaskDto;
+import pet.proj.todo.dto.task.CreateTaskDto;
+import pet.proj.todo.dto.task.TaskDto;
+import pet.proj.todo.dto.task.UpdateTaskDto;
 import pet.proj.todo.model.Task.Status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Sql(scripts = {"classpath:database/users/insert-test-user.sql",
+        "classpath:database/users/delete-all-users.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 class TaskControllerTest {
+
     protected static MockMvc mockMvc;
     @Autowired
     private static ObjectMapper objectMapper;
@@ -39,12 +44,14 @@ class TaskControllerTest {
     static void beforeAll(@Autowired WebApplicationContext applicationContext) {
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(applicationContext)
+                .apply(springSecurity())
                 .build();
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
     @Test
     @DisplayName("Get new tasks")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql",
             "classpath:database/tasks/insert-tasks.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -68,6 +75,7 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Get active tasks")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql",
             "classpath:database/tasks/insert-tasks.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -91,6 +99,7 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Get completed tasks")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql",
             "classpath:database/tasks/insert-tasks.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -119,6 +128,7 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Successfully create task")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void createTask_ValidInput_Success() throws Exception {
@@ -147,7 +157,10 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Unsuccessfully create task")
-    @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql"},
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
+    @Sql(scripts = {"classpath:database/users/delete-all-users.sql",
+            "classpath:database/users/insert-test-user.sql",
+            "classpath:database/tasks/delete-all-tasks.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void createTask_InvalidInput_BadRequest() throws Exception {
         CreateTaskDto request = CreateTaskDto.builder()
@@ -167,6 +180,7 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Update task invalid input")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql",
             "classpath:database/tasks/insert-one-task.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -185,6 +199,7 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Update task valid input")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql",
             "classpath:database/tasks/insert-one-task.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -209,6 +224,7 @@ class TaskControllerTest {
 
     @Test
     @DisplayName("Delete task with existing id")
+    @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
     @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql",
             "classpath:database/tasks/insert-one-task.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)

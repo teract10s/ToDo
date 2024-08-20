@@ -1,4 +1,4 @@
-package pet.proj.todo.dto;
+package pet.proj.todo.dto.task;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
