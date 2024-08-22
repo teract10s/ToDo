@@ -158,9 +158,7 @@ class TaskControllerTest {
     @Test
     @DisplayName("Unsuccessfully create task")
     @WithMockUser(username = "test@gmail.com", authorities = {"USER"})
-    @Sql(scripts = {"classpath:database/users/delete-all-users.sql",
-            "classpath:database/users/insert-test-user.sql",
-            "classpath:database/tasks/delete-all-tasks.sql"},
+    @Sql(scripts = {"classpath:database/tasks/delete-all-tasks.sql"},
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void createTask_InvalidInput_BadRequest() throws Exception {
         CreateTaskDto request = CreateTaskDto.builder()
