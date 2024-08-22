@@ -1,4 +1,4 @@
-package pet.proj.todo.exciption;
+package pet.proj.todo.exception;
 
 public class WrongDeadlineException extends RuntimeException {
     public WrongDeadlineException(String message) {

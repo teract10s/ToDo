@@ -8,5 +8,7 @@ import pet.proj.todo.model.Task.Status;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findAllByStatus(Status status);
+    List<Task> findAllByStatusAndUserId(Status status, Long userId);
+
+    List<Task> findAllByUserId(Long userId);
 }
