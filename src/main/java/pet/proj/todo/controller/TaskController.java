@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,7 @@ import pet.proj.todo.dto.task.CreateTaskDto;
 import pet.proj.todo.dto.task.TaskDto;
 import pet.proj.todo.dto.task.UpdateTaskDto;
 import pet.proj.todo.exception.WrongDeadlineException;
+import pet.proj.todo.filter.RequestLoggingFilter;
 import pet.proj.todo.service.TaskService;
 
 @Tag(name = "Tasks management", description = "Endpoints for managing task")
@@ -28,7 +31,7 @@ import pet.proj.todo.service.TaskService;
 @RequiredArgsConstructor
 @RequestMapping("/tasks")
 public class TaskController {
-
+    private static final Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
     private final TaskService taskService;
 
     @GetMapping
@@ -39,7 +42,14 @@ public class TaskController {
         return taskService.findAllTasks(authentication);
     }
 
-    @GetMapping("/{status}")
+    @GetMapping("/{id}")
+    @Operation()
+    @PreAuthorize("hasAuthority('USER')")
+    public TaskDto getTaskById(@PathVariable Long id, Authentication authentication) {
+        return taskService.getTaskById(id, authentication);
+    }
+
+    @GetMapping("/status/{status}")
     @Operation(summary = "Get all tasks",
             description = "Get a list of all tasks by status")
     @PreAuthorize("hasAuthority('USER')")
@@ -53,6 +63,7 @@ public class TaskController {
     @PreAuthorize("hasAuthority('USER')")
     public TaskDto createTask(Authentication authentication, @RequestBody @Valid CreateTaskDto taskDto)
             throws WrongDeadlineException {
+        logger.info(taskDto.toString());
         return taskService.createTask(authentication, taskDto);
     }
 
@@ -69,6 +80,7 @@ public class TaskController {
     @PreAuthorize("hasAuthority('USER')")
     public TaskDto updateTask(Authentication authentication, @PathVariable Long id,
             @RequestBody UpdateTaskDto updateTaskDto) {
+        logger.info(updateTaskDto.toString());
         return taskService.updateTask(authentication, id, updateTaskDto);
     }
 }

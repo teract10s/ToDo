@@ -11,6 +11,7 @@ import pet.proj.todo.model.Task.Status;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskDto {
+    private Long id;
     private String name;
     private String description;
     @JsonFormat(pattern = "dd:MM:yyyy' 'HH:mm")

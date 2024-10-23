@@ -1,12 +1,11 @@
 package pet.proj.todo.service.impl;
 
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
-import org.springframework.dao.PermissionDeniedDataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -39,6 +38,17 @@ public class TaskServiceImpl implements TaskService {
                 .toList();
     }
 
+    @Transactional
+    @Override
+    public TaskDto getTaskById(Long id, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        Task task = taskRepository.getReferenceById(id);
+        if (!Objects.equals(task.getUser().getId(), user.getId())) {
+            throw new PermissionDeniedException("You don't have permission to the task with id: " + id);
+        }
+        return taskMapper.toDto(task);
+    }
+
     @Override
     public List<TaskDto> findAllTasksByStatus(Authentication authentication, String status) {
         User user = (User) userDetailsService.loadUserByUsername(authentication.getName());
@@ -59,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
         User user = (User) userDetailsService.loadUserByUsername(authentication.getName());
         Task notSavedTask = taskMapper.toModel(taskDto);
         notSavedTask.setUser(user);
-        if (taskDto.deadline() != null && LocalDateTime.now().isAfter(taskDto.deadline())) {
+        if (taskDto.getDeadline() != null && LocalDateTime.now().isAfter(taskDto.getDeadline())) {
             throw new WrongDeadlineException("The deadline must be after the current time");
         }
         if (notSavedTask.getStatus() == null) {
@@ -69,6 +79,7 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toDto(savedTask);
     }
 
+    @Transactional
     @Override
     public void deleteTask(Authentication authentication, Long id) {
         User user = (User) userDetailsService.loadUserByUsername(authentication.getName());
@@ -87,8 +98,8 @@ public class TaskServiceImpl implements TaskService {
         if (!Objects.equals(taskFromDb.getUser().getId(), user.getId())) {
             throw new PermissionDeniedException("Can't update not your task");
         }
-        if (updateTaskDto.deadline() != null
-                && LocalDateTime.now().isAfter(updateTaskDto.deadline())) {
+        if (updateTaskDto.getDeadline() != null
+                && LocalDateTime.now().isAfter(updateTaskDto.getDeadline())) {
             throw new WrongDeadlineException("The deadline must be after the current time");
         }
         taskMapper.updateBook(updateTaskDto, taskFromDb);

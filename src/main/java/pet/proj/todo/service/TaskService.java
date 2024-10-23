@@ -1,7 +1,6 @@
 package pet.proj.todo.service;
 
 import java.util.List;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.Authentication;
 import pet.proj.todo.dto.task.CreateTaskDto;
 import pet.proj.todo.dto.task.TaskDto;
@@ -18,4 +17,7 @@ public interface TaskService {
     TaskDto updateTask(Authentication authentication, Long id, UpdateTaskDto updateTaskDto);
 
     List<TaskDto> findAllTasks(Authentication authentication);
+
+    TaskDto getTaskById(Long id, Authentication authentication);
 }
+
